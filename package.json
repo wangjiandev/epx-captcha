@@ -39,9 +39,9 @@
     "scripts": {
         "dev": "vite",
         "declare": "webpack --config build/webpack.common.config.js --progress --color && rm -rf dist/makeit-captcha.min.js",
-        "compile": "rm -rf es/ lib/ dist/ && gulp --gulpfile build/gulp.style.config.js",
+        "compile": "rimraf es/ lib/ dist/ && gulp --gulpfile build/gulp.style.config.js",
         "dist": "webpack --config build/webpack.build.config.js --mode production --progress --color",
-        "build": "rm -rf es/ lib/ dist/ && npm run compile && npm run dist",
+        "build": "rimraf es/ lib/ dist/ && npm run compile && npm run dist",
         "build:example": "vite build",
         "format": "eslint -c ./.eslintrc --fix --ext .jsx,.js,.vue,.ts,.tsx ./src"
     },
