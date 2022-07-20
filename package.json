@@ -11,27 +11,21 @@
         "vue",
         "vue3",
         "vite",
-        "makeit",
         "captcha",
-        "miitvip",
-        "makeit.vip",
-        "admin-captcha",
         "component",
-        "makeit-component",
-        "vue-component",
-        "麦可易特网"
+        "vue-component"
     ],
-    "description": "Makeit Captcha 滑块验证码组件，是基于 Vue3.x + Vite2.x + Canvas 开发，动态生成验证滑块，结合后端进行二次校验，能有效避免被恶意抓取后的模拟验证，进一步提升验证码的可靠性。",
+    "description": "Epx Captcha 滑块验证码组件，是基于 Vue3.x + Vite2.x + Canvas 开发，动态生成验证滑块，结合后端进行二次校验，能有效避免被恶意抓取后的模拟验证，进一步提升验证码的可靠性。",
     "private": false,
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/lirongtong/miitvip-captcha.git"
+        "url": "git+https://github.com/wangjiandev/epx-captcha.git"
     },
     "bugs": {
-        "url": "https://github.com/lirongtong/miitvip-captcha/issues"
+        "url": "https://github.com/wangjiandev/epx-captcha/issues"
     },
-    "homepage": "https://admin.makeit.vip/components/captcha",
+    "homepage": "https://github.com/wangjiandev/epx-captcha",
     "files": [
         "dist",
         "lib",
