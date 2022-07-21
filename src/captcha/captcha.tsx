@@ -7,9 +7,9 @@ import { $g } from '../utils/global'
 import { $request } from '../utils/request'
 import MiCaptchaModal from './modal'
 
-const POWERED = 'Powered By makeit.vip'
-const AVATAR = 'https://file.makeit.vip/MIIT/M00/00/00/ajRkHV_pUyOALE2LAAAtlj6Tt_s370.png'
-const TARGET = 'https://admin.makeit.vip/components/captcha'
+const POWERED = 'Powered By Epx'
+const AVATAR = 'https://www.naiveui.com/assets/naivelogo.93278402.svg'
+const TARGET = 'https://github.com/wangjiandev/epx-captcha'
 
 export default defineComponent({
     name: 'MiCaptcha',
@@ -53,6 +53,8 @@ export default defineComponent({
                 show: false,
                 pos: {}
             },
+            image: '',
+            block: '',
             verifyParams: { ...props.verifyParams }
         }) as { [index: string]: any }
 
@@ -80,9 +82,11 @@ export default defineComponent({
                     $request[props.initMethod.toLowerCase()](props.initAction, props.initParams)
                         .then((res: any) => {
                             afterInit()
-                            if (res?.data?.key && !params.verifyParams.key)
-                                params.verifyParams.key = res.data.key
-                            emit('init', res)
+                            if (res?.data?.repCode && res?.data?.repCode === '0000') {
+                                emit('init', res)
+                            } else {
+                                afterInit('初始化接口有误，请稍候再试')
+                            }
                         })
                         .catch(() => {
                             afterInit('初始化接口有误，请稍候再试')
@@ -99,8 +103,18 @@ export default defineComponent({
             if (props.checkAction) {
                 $request[props.checkMethod.toLowerCase()](props.checkAction, props.checkParams)
                     .then((res: any) => {
-                        if (res.data.pass) params.pass = true
-                        else initCaptchaModal()
+                        if (res?.data?.repCode && res?.data?.repCode === '0000') {
+                            params.image =
+                                'data:image/png;base64,' + res.data.repData.originalImageBase64
+                            params.blockImage =
+                                'data:image/png;base64,' + res.data.repData.jigsawImageBase64
+                            params.verifyParams.secretKey = res.data.repData.secretKey
+                            params.verifyParams.token = res.data.repData.token
+                            console.log('>>', params)
+                            initCaptchaModal()
+                        } else {
+                            params.pass = true
+                        }
                         emit('checked', res)
                     })
                     .catch(() => {
@@ -223,10 +237,8 @@ export default defineComponent({
                         verifyParams={params.verifyParams}
                         verifyAction={props.verifyAction}
                         onModalClose={closeCaptchaModal}
-                        image={props.image}
-                        blockImage={props.blockImage}
-                        secretKey={props.secretKey}
-                        token={props.token}
+                        image={params.image}
+                        blockImage={params.blockImage}
                     />
                 </Teleport>
             ) : null

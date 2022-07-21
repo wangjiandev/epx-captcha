@@ -9,9 +9,9 @@ import { captchaModalProps } from './props'
 import { aesEncrypt } from '../utils/ase'
 
 const BACKGROUND = 'https://file.makeit.vip/MIIT/M00/00/00/ajRkHV7d0JOAJYSMAAFwUxGzMIc287.jpg'
-const POWERED = 'Powered By makeit.vip'
-const AVATAR = 'https://file.makeit.vip/MIIT/M00/00/00/ajRkHV_pUyOALE2LAAAtlj6Tt_s370.png'
-const TARGET = 'https://admin.makeit.vip/components/captcha'
+const POWERED = 'Powered By epx'
+const AVATAR = 'https://www.naiveui.com/assets/naivelogo.93278402.svg'
+const TARGET = 'https://github.com/wangjiandev/epx-captcha'
 
 export default defineComponent({
     name: 'MiCaptchaModal',
@@ -295,27 +295,27 @@ export default defineComponent({
             if (props.verifyAction) {
                 const verifyParams = {
                     captchaType: 'blockPuzzle',
-                    pointJson: props.secretKey
+                    pointJson: props.verifyParams.secretKey
                         ? aesEncrypt(
                               JSON.stringify({ x: moveLeftDistance, y: 5.0 }),
-                              props.secretKey
+                              props.verifyParams.secretKey
                           )
                         : JSON.stringify({ x: moveLeftDistance, y: 5.0 }),
-                    token: props.token
+                    token: props.verifyParams.token
                 }
 
                 await $request[props.verifyMethod.toLowerCase()](props.verifyAction, verifyParams)
                     .then((res: any) => {
                         if (res.data.repCode === '0000') {
                             params.check.correct = true
-                            const captchaVerification = props.secretKey
+                            const captchaVerification = props.verifyParams.secretKey
                                 ? aesEncrypt(
-                                      props.token +
+                                      props.verifyParams.token +
                                           '---' +
                                           JSON.stringify({ x: moveLeftDistance, y: 5.0 }),
-                                      props.secretKey
+                                      props.verifyParams.secretKey
                                   )
-                                : props.token +
+                                : props.verifyParams.token +
                                   '---' +
                                   JSON.stringify({ x: moveLeftDistance, y: 5.0 })
                             succcess(captchaVerification)
