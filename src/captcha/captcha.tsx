@@ -110,7 +110,6 @@ export default defineComponent({
                                 'data:image/png;base64,' + res.data.repData.jigsawImageBase64
                             params.verifyParams.secretKey = res.data.repData.secretKey
                             params.verifyParams.token = res.data.repData.token
-                            console.log('>>', params)
                             initCaptchaModal()
                         } else {
                             params.pass = true
