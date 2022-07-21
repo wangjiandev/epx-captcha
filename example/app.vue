@@ -18,7 +18,6 @@
 </template>
 
 <script setup>
-import { data } from 'browserslist'
 import { ref, reactive } from 'vue'
 
 const captcha = ref(null)
@@ -45,7 +44,7 @@ const initAfter = (res) => {
 }
 
 const successHandler = (res) => {
-    console.log('success:', data)
+    console.log('success:', res)
 }
 
 const reset = () => {

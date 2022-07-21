@@ -150,35 +150,8 @@ export default defineComponent({
             const imageCtx = image ? image.getContext('2d') : null
             const blockCtx = block ? block.getContext('2d') : null
             params.ctx = { image: imageCtx, block: blockCtx }
-            /**
-             * 图片统一转为 base64, 避免跨域问题.
-             * 也可采用xhr异步请求图片地址.
-             * ```
-             * if (this.$g.regExp.url.test(this.background)) {
-             *     const xhr = new XMLHttpRequest();
-             *     xhr.onload = function() {
-             *         if (this.status === 200) {
-             *             // 注意 this 指向.
-             *             const url = URL.createObjectURL(this.response);
-             *             vm.background = url;
-             *             vm.initImageElem();
-             *             // ...
-             *             URL.revokeObjectURL(url);
-             *         }
-             *     }
-             *     xhr.open('GET', this.background, true);
-             *     xhr.responseType = 'blob';
-             *     xhr.send();
-             * } else {
-             *     this.initImageElem();
-             * }
-             * ```
-             */
             if ($g.regExp.url.test(params._background)) image2Base64(initImageElem)
             else initImageElem()
-
-            // if ($g.regExp.url.test(params._blockImage)) image2Base64(initImageElem)
-            // else initImageElem()
         }
 
         const refreshCaptcha = () => {
@@ -238,32 +211,13 @@ export default defineComponent({
                 const block_elem = new Image()
                 block_elem.src = params._blockImage
                 block_elem.onload = () => initBlockImage(block_elem)
-                // params.ctx.block.save()
-                // params.ctx.block.globalCompositeOperation = 'destination-over'
-                // drawBlockPosition()
-                // params.ctx.block.drawImage(elem, 0, 0, params.size.width, params.size.height)
-                /** image data */
-                // const coordinateY = params.coordinate.y - params.block.radius * 2 + 1
-                // const imageData = params.ctx.block.getImageData(
-                //     params.coordinate.x,
-                //     coordinateY,
-                //     params.block.real,
-                //     params.block.real
-                // )
-                // const block = blockRef.value as HTMLCanvasElement | null
-                // if (block) block.width = params.block.real
-                // params.ctx.block.putImageData(imageData, params.coordinate.offset, coordinateY)
-                // params.ctx.block.restore()
                 params.loading = false
             }
         }
 
         const initBlockImage = (elem: HTMLElement) => {
-            // params.ctx.block.save()
-            // params.ctx.block.globalCompositeOperation = 'destination-over'
-            // drawBlockPosition()
             const block = blockRef.value as HTMLCanvasElement | null
-            if (block) block.width = 44
+            if (block) block.width = params.block.size
             params.ctx.block.drawImage(elem, 0, 0, params.block.size, params.size.height)
             params.ctx.block.restore()
         }
@@ -273,96 +227,6 @@ export default defineComponent({
             elem.src = params._background
             elem.onload = () => initImage(elem)
         }
-
-        // const drawBlock = (
-        //     ctx: CanvasRenderingContext2D,
-        //     direction: any = {},
-        //     operation: string
-        // ) => {
-        //     ctx.beginPath()
-        //     ctx.moveTo(params.coordinate.x, params.coordinate.y)
-        //     const direct = direction.direction
-        //     const type = direction.type
-        //     /** top */
-        //     if (direct === 'top') {
-        //         ctx.arc(
-        //             params.coordinate.x + params.block.size / 2,
-        //             params.coordinate.y,
-        //             params.block.radius,
-        //             -params.block.PI,
-        //             0,
-        //             type === 'inner'
-        //         )
-        //     }
-        //     ctx.lineTo(params.coordinate.x + params.block.size, params.coordinate.y)
-        //     /** right */
-        //     if (direct === 'right') {
-        //         ctx.arc(
-        //             params.coordinate.x + params.block.size,
-        //             params.coordinate.y + params.block.size / 2,
-        //             params.block.radius,
-        //             1.5 * params.block.PI,
-        //             0.5 * params.block.PI,
-        //             type === 'inner'
-        //         )
-        //     }
-        //     ctx.lineTo(
-        //         params.coordinate.x + params.block.size,
-        //         params.coordinate.y + params.block.size
-        //     )
-        //     /** bottom */
-        //     ctx.arc(
-        //         params.coordinate.x + params.block.size / 2,
-        //         params.coordinate.y + params.block.size,
-        //         params.block.radius,
-        //         0,
-        //         params.block.PI,
-        //         true
-        //     )
-        //     ctx.lineTo(params.coordinate.x, params.coordinate.y + params.block.size)
-        //     /** left */
-        //     ctx.arc(
-        //         params.coordinate.x,
-        //         params.coordinate.y + params.block.size / 2,
-        //         params.block.radius,
-        //         0.5 * params.block.PI,
-        //         1.5 * params.block.PI,
-        //         true
-        //     )
-        //     ctx.lineTo(params.coordinate.x, params.coordinate.y)
-        //     ctx.shadowColor = 'rgba(0, 0, 0, .001)'
-        //     ctx.shadowBlur = 20
-        //     ctx.lineWidth = 1.5
-        //     ctx.fillStyle = 'rgba(0, 0, 0, .4)'
-        //     ctx.strokeStyle = 'rgba(255, 255, 255, .8)'
-        //     ctx.stroke()
-        //     ctx.closePath()
-        //     ctx[operation]()
-        // }
-
-        // const drawBlockPosition = () => {
-        //     const x = $tools.randomNumberInRange(
-        //         params.block.real + 20,
-        //         params.size.width - (params.block.real + 20)
-        //     )
-        //     const y = $tools.randomNumberInRange(55, params.size.height - 55)
-        //     const direction = drawBlockDirection()
-        //     params.coordinate.x = x
-        //     params.coordinate.y = y
-        //     drawBlock(params.ctx.image, direction, 'fill')
-        //     drawBlock(params.ctx.block, direction, 'clip')
-        // }
-
-        // const drawBlockDirection = () => {
-        //     const direction = { top: 'top', right: 'right' }
-        //     const from = ['inner', 'outer']
-        //     const result: any = {}
-        //     const keys = Object.keys(direction)
-        //     const key = keys[Math.floor(Math.random() * keys.length)]
-        //     result.direction = direction[key]
-        //     result.type = from[Math.floor(Math.random() * from.length)]
-        //     return result
-        // }
 
         const getBoundingClientRect = (elem: HTMLElement, specific = null) => {
             const rect = elem.getBoundingClientRect()
@@ -440,7 +304,7 @@ export default defineComponent({
                         : JSON.stringify({ x: moveLeftDistance, y: 5.0 }),
                     token: props.token
                 }
-                console.log(verifyParams)
+
                 await $request[props.verifyMethod.toLowerCase()](props.verifyAction, verifyParams)
                     .then((res: any) => {
                         if (res.data.repCode === '0000') {
@@ -455,7 +319,7 @@ export default defineComponent({
                                 : props.token +
                                   '---' +
                                   JSON.stringify({ x: moveLeftDistance, y: 5.0 })
-
+                            console.log('>>>>', captchaVerification)
                             succcess(captchaVerification)
                         } else error(res.msg)
                     })

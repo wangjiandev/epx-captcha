@@ -183,6 +183,7 @@ export default defineComponent({
         const success = (data: any) => {
             params.tip = '通过验证'
             emit('success', data)
+            console.log('1111>>', data)
             setTimeout(() => {
                 params.modal.show = false
                 params.status.being = false
