@@ -6,6 +6,7 @@ import { $tools } from '../utils/tools'
 import { $g } from '../utils/global'
 import { $request } from '../utils/request'
 import { captchaModalProps } from './props'
+import { aesEncrypt } from '../utils/ase'
 
 const BACKGROUND = 'https://file.makeit.vip/MIIT/M00/00/00/ajRkHV7d0JOAJYSMAAFwUxGzMIc287.jpg'
 const POWERED = 'Powered By makeit.vip'
@@ -62,11 +63,11 @@ export default defineComponent({
                 offset: 6
             },
             size: {
-                width: 260,
-                height: 160
+                width: 310,
+                height: 155
             },
             block: {
-                size: 42,
+                size: 50,
                 radius: 8,
                 PI: Math.PI,
                 real: 0
@@ -90,7 +91,8 @@ export default defineComponent({
                 being: false,
                 value: null
             },
-            _background: null
+            _background: null,
+            _blockImage: null
         }) as { [index: string]: any }
 
         onMounted(() => {
@@ -108,6 +110,7 @@ export default defineComponent({
 
         const init = () => {
             params._background = props.image ?? params.background
+            params._blockImage = props.blockImage ?? params.background
             initModal()
         }
 
@@ -140,7 +143,9 @@ export default defineComponent({
         }
 
         const initCaptcha = () => {
+            // 背景画布
             const image = imageRef.value as HTMLCanvasElement | null
+            // 滑动画布
             const block = blockRef.value as HTMLCanvasElement | null
             const imageCtx = image ? image.getContext('2d') : null
             const blockCtx = block ? block.getContext('2d') : null
@@ -171,6 +176,9 @@ export default defineComponent({
              */
             if ($g.regExp.url.test(params._background)) image2Base64(initImageElem)
             else initImageElem()
+
+            // if ($g.regExp.url.test(params._blockImage)) image2Base64(initImageElem)
+            // else initImageElem()
         }
 
         const refreshCaptcha = () => {
@@ -227,24 +235,37 @@ export default defineComponent({
                 params.ctx.image.fillText('就能验证成功哦', 12, 55)
                 params.ctx.image.closePath()
                 /** block */
-                params.ctx.block.save()
-                params.ctx.block.globalCompositeOperation = 'destination-over'
-                drawBlockPosition()
-                params.ctx.block.drawImage(elem, 0, 0, params.size.width, params.size.height)
+                const block_elem = new Image()
+                block_elem.src = params._blockImage
+                block_elem.onload = () => initBlockImage(block_elem)
+                // params.ctx.block.save()
+                // params.ctx.block.globalCompositeOperation = 'destination-over'
+                // drawBlockPosition()
+                // params.ctx.block.drawImage(elem, 0, 0, params.size.width, params.size.height)
                 /** image data */
-                const coordinateY = params.coordinate.y - params.block.radius * 2 + 1
-                const imageData = params.ctx.block.getImageData(
-                    params.coordinate.x,
-                    coordinateY,
-                    params.block.real,
-                    params.block.real
-                )
-                const block = blockRef.value as HTMLCanvasElement | null
-                if (block) block.width = params.block.real
-                params.ctx.block.putImageData(imageData, params.coordinate.offset, coordinateY)
-                params.ctx.block.restore()
+                // const coordinateY = params.coordinate.y - params.block.radius * 2 + 1
+                // const imageData = params.ctx.block.getImageData(
+                //     params.coordinate.x,
+                //     coordinateY,
+                //     params.block.real,
+                //     params.block.real
+                // )
+                // const block = blockRef.value as HTMLCanvasElement | null
+                // if (block) block.width = params.block.real
+                // params.ctx.block.putImageData(imageData, params.coordinate.offset, coordinateY)
+                // params.ctx.block.restore()
                 params.loading = false
             }
+        }
+
+        const initBlockImage = (elem: HTMLElement) => {
+            // params.ctx.block.save()
+            // params.ctx.block.globalCompositeOperation = 'destination-over'
+            // drawBlockPosition()
+            const block = blockRef.value as HTMLCanvasElement | null
+            if (block) block.width = 44
+            params.ctx.block.drawImage(elem, 0, 0, params.block.size, params.size.height)
+            params.ctx.block.restore()
         }
 
         const initImageElem = () => {
@@ -253,95 +274,95 @@ export default defineComponent({
             elem.onload = () => initImage(elem)
         }
 
-        const drawBlock = (
-            ctx: CanvasRenderingContext2D,
-            direction: any = {},
-            operation: string
-        ) => {
-            ctx.beginPath()
-            ctx.moveTo(params.coordinate.x, params.coordinate.y)
-            const direct = direction.direction
-            const type = direction.type
-            /** top */
-            if (direct === 'top') {
-                ctx.arc(
-                    params.coordinate.x + params.block.size / 2,
-                    params.coordinate.y,
-                    params.block.radius,
-                    -params.block.PI,
-                    0,
-                    type === 'inner'
-                )
-            }
-            ctx.lineTo(params.coordinate.x + params.block.size, params.coordinate.y)
-            /** right */
-            if (direct === 'right') {
-                ctx.arc(
-                    params.coordinate.x + params.block.size,
-                    params.coordinate.y + params.block.size / 2,
-                    params.block.radius,
-                    1.5 * params.block.PI,
-                    0.5 * params.block.PI,
-                    type === 'inner'
-                )
-            }
-            ctx.lineTo(
-                params.coordinate.x + params.block.size,
-                params.coordinate.y + params.block.size
-            )
-            /** bottom */
-            ctx.arc(
-                params.coordinate.x + params.block.size / 2,
-                params.coordinate.y + params.block.size,
-                params.block.radius,
-                0,
-                params.block.PI,
-                true
-            )
-            ctx.lineTo(params.coordinate.x, params.coordinate.y + params.block.size)
-            /** left */
-            ctx.arc(
-                params.coordinate.x,
-                params.coordinate.y + params.block.size / 2,
-                params.block.radius,
-                0.5 * params.block.PI,
-                1.5 * params.block.PI,
-                true
-            )
-            ctx.lineTo(params.coordinate.x, params.coordinate.y)
-            ctx.shadowColor = 'rgba(0, 0, 0, .001)'
-            ctx.shadowBlur = 20
-            ctx.lineWidth = 1.5
-            ctx.fillStyle = 'rgba(0, 0, 0, .4)'
-            ctx.strokeStyle = 'rgba(255, 255, 255, .8)'
-            ctx.stroke()
-            ctx.closePath()
-            ctx[operation]()
-        }
+        // const drawBlock = (
+        //     ctx: CanvasRenderingContext2D,
+        //     direction: any = {},
+        //     operation: string
+        // ) => {
+        //     ctx.beginPath()
+        //     ctx.moveTo(params.coordinate.x, params.coordinate.y)
+        //     const direct = direction.direction
+        //     const type = direction.type
+        //     /** top */
+        //     if (direct === 'top') {
+        //         ctx.arc(
+        //             params.coordinate.x + params.block.size / 2,
+        //             params.coordinate.y,
+        //             params.block.radius,
+        //             -params.block.PI,
+        //             0,
+        //             type === 'inner'
+        //         )
+        //     }
+        //     ctx.lineTo(params.coordinate.x + params.block.size, params.coordinate.y)
+        //     /** right */
+        //     if (direct === 'right') {
+        //         ctx.arc(
+        //             params.coordinate.x + params.block.size,
+        //             params.coordinate.y + params.block.size / 2,
+        //             params.block.radius,
+        //             1.5 * params.block.PI,
+        //             0.5 * params.block.PI,
+        //             type === 'inner'
+        //         )
+        //     }
+        //     ctx.lineTo(
+        //         params.coordinate.x + params.block.size,
+        //         params.coordinate.y + params.block.size
+        //     )
+        //     /** bottom */
+        //     ctx.arc(
+        //         params.coordinate.x + params.block.size / 2,
+        //         params.coordinate.y + params.block.size,
+        //         params.block.radius,
+        //         0,
+        //         params.block.PI,
+        //         true
+        //     )
+        //     ctx.lineTo(params.coordinate.x, params.coordinate.y + params.block.size)
+        //     /** left */
+        //     ctx.arc(
+        //         params.coordinate.x,
+        //         params.coordinate.y + params.block.size / 2,
+        //         params.block.radius,
+        //         0.5 * params.block.PI,
+        //         1.5 * params.block.PI,
+        //         true
+        //     )
+        //     ctx.lineTo(params.coordinate.x, params.coordinate.y)
+        //     ctx.shadowColor = 'rgba(0, 0, 0, .001)'
+        //     ctx.shadowBlur = 20
+        //     ctx.lineWidth = 1.5
+        //     ctx.fillStyle = 'rgba(0, 0, 0, .4)'
+        //     ctx.strokeStyle = 'rgba(255, 255, 255, .8)'
+        //     ctx.stroke()
+        //     ctx.closePath()
+        //     ctx[operation]()
+        // }
 
-        const drawBlockPosition = () => {
-            const x = $tools.randomNumberInRange(
-                params.block.real + 20,
-                params.size.width - (params.block.real + 20)
-            )
-            const y = $tools.randomNumberInRange(55, params.size.height - 55)
-            const direction = drawBlockDirection()
-            params.coordinate.x = x
-            params.coordinate.y = y
-            drawBlock(params.ctx.image, direction, 'fill')
-            drawBlock(params.ctx.block, direction, 'clip')
-        }
+        // const drawBlockPosition = () => {
+        //     const x = $tools.randomNumberInRange(
+        //         params.block.real + 20,
+        //         params.size.width - (params.block.real + 20)
+        //     )
+        //     const y = $tools.randomNumberInRange(55, params.size.height - 55)
+        //     const direction = drawBlockDirection()
+        //     params.coordinate.x = x
+        //     params.coordinate.y = y
+        //     drawBlock(params.ctx.image, direction, 'fill')
+        //     drawBlock(params.ctx.block, direction, 'clip')
+        // }
 
-        const drawBlockDirection = () => {
-            const direction = { top: 'top', right: 'right' }
-            const from = ['inner', 'outer']
-            const result: any = {}
-            const keys = Object.keys(direction)
-            const key = keys[Math.floor(Math.random() * keys.length)]
-            result.direction = direction[key]
-            result.type = from[Math.floor(Math.random() * from.length)]
-            return result
-        }
+        // const drawBlockDirection = () => {
+        //     const direction = { top: 'top', right: 'right' }
+        //     const from = ['inner', 'outer']
+        //     const result: any = {}
+        //     const keys = Object.keys(direction)
+        //     const key = keys[Math.floor(Math.random() * keys.length)]
+        //     result.direction = direction[key]
+        //     result.type = from[Math.floor(Math.random() * from.length)]
+        //     return result
+        // }
 
         const getBoundingClientRect = (elem: HTMLElement, specific = null) => {
             const rect = elem.getBoundingClientRect()
@@ -398,33 +419,57 @@ export default defineComponent({
                 params.check.correct = false
                 if (msg) params.check.tip = msg
             }
-            if (params.coordinate.x - 2 <= coordinateX && params.coordinate.x + 2 >= coordinateX) {
-                const succcess = (data: any = {}) => {
-                    setTimeout(() => {
-                        closeModal('success', data)
-                    }, 500)
+            console.log('coordinateX:', coordinateX)
+            const moveLeftDistance = (coordinateX * 310) / parseInt(params.size.width)
+            console.log('moveLeftDistance', moveLeftDistance, coordinateX * 310, params.size.width)
+            const succcess = (data: any = {}) => {
+                setTimeout(() => {
+                    closeModal('success', data)
+                }, 500)
+            }
+            const take = Math.round((params.time.end - params.time.start) / 10) / 100
+            params.check.tip = `${take}s速度完成图片拼合验证`
+            if (props.verifyAction) {
+                const verifyParams = {
+                    captchaType: 'blockPuzzle',
+                    pointJson: props.secretKey
+                        ? aesEncrypt(
+                              JSON.stringify({ x: moveLeftDistance, y: 5.0 }),
+                              props.secretKey
+                          )
+                        : JSON.stringify({ x: moveLeftDistance, y: 5.0 }),
+                    token: props.token
                 }
-                const take = Math.round((params.time.end - params.time.start) / 10) / 100
-                params.check.tip = `${take}s速度完成图片拼合验证`
-                if (props.verifyAction) {
-                    await $request[props.verifyMethod.toLowerCase()](
-                        props.verifyAction,
-                        props.verifyParams
-                    )
-                        .then((res: any) => {
-                            if (res.ret.code === 200) {
-                                params.check.correct = true
-                                succcess(res.data)
-                            } else error(res.ret.message)
-                        })
-                        .catch((err: any) => {
-                            error(err.message)
-                        })
-                } else {
-                    params.check.correct = true
-                    succcess()
-                }
-            } else error()
+                console.log(verifyParams)
+                await $request[props.verifyMethod.toLowerCase()](props.verifyAction, verifyParams)
+                    .then((res: any) => {
+                        if (res.data.repCode === '0000') {
+                            params.check.correct = true
+                            const captchaVerification = props.secretKey
+                                ? aesEncrypt(
+                                      props.token +
+                                          '---' +
+                                          JSON.stringify({ x: moveLeftDistance, y: 5.0 }),
+                                      props.secretKey
+                                  )
+                                : props.token +
+                                  '---' +
+                                  JSON.stringify({ x: moveLeftDistance, y: 5.0 })
+
+                            succcess(captchaVerification)
+                        } else error(res.msg)
+                    })
+                    .catch((err: any) => {
+                        error(err.message)
+                    })
+            } else {
+                params.check.correct = true
+                succcess()
+            }
+
+            // if (params.coordinate.x - 2 <= coordinateX && params.coordinate.x + 2 >= coordinateX) {
+
+            // } else error()
             const result = resultRef.value as HTMLElement | null
             if (result) result.style.bottom = '0'
             if (params.check.num <= params.check.tries) params.check.show = true
@@ -521,10 +566,12 @@ export default defineComponent({
             return (
                 <div class={`${prefixCls}-info`}>
                     <canvas
+                        id="image"
                         width={params.size.width}
                         height={params.size.height}
                         ref={imageRef}></canvas>
                     <canvas
+                        id="block"
                         width={params.size.width}
                         height={params.size.height}
                         ref={blockRef}></canvas>

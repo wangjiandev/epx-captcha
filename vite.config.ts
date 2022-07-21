@@ -26,9 +26,10 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '/v1': {
-                target: 'http://local-api.makeit.vip',
-                changeOrigin: true
+            '/api': {
+                target: 'http://192.168.1.73:9999',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, '')
             }
         }
     },

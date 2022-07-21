@@ -224,6 +224,9 @@ export default defineComponent({
                         verifyAction={props.verifyAction}
                         onModalClose={closeCaptchaModal}
                         image={props.image}
+                        blockImage={props.blockImage}
+                        secretKey={props.secretKey}
+                        token={props.token}
                     />
                 </Teleport>
             ) : null

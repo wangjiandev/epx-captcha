@@ -1,5 +1,6 @@
 import { App } from 'vue'
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios'
+import qs from 'qs'
 
 axios.defaults.baseURL = '/'
 axios.defaults.withCredentials = true
@@ -60,6 +61,9 @@ class MiRequest {
                     delete args.data
                     args.params = data
                 }
+                const p = qs.stringify(args.data)
+                args.url = args.url + '?' + p
+                console.log('>>>>', args)
                 const configuration = {
                     ...args,
                     ...config
