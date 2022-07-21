@@ -1,10 +1,10 @@
 <template>
     <div class="mi-captchas">
-        <mi-captcha ref="captcha" />
-        <a @click="reset" style="margin-bottom: 24px; text-align: center; display: block">重置</a>
-        <mi-captcha theme-color="#2F9688" border-color="#2F9688" box-shadow-color="#2F9688" />
+        <!-- <mi-captcha ref="captcha" /> -->
+        <!-- <mi-captcha theme-color="#2F9688" border-color="#2F9688" box-shadow-color="#2F9688" /> -->
         <mi-captcha
-            theme-color="#be6be0"
+            ref="captcha"
+            theme-color="#2F9688"
             init-action="api/code"
             :image="initParams.image"
             :blockImage="initParams.blockImage"
@@ -14,6 +14,19 @@
             @success="successHandler"
             verify-action="api/code/check"
             :verify-params="params.verify" />
+        <a
+            @click="reset"
+            style="
+                padding-top: 10px;
+                padding-bottom: 10px;
+                margin-bottom: 24px;
+                text-align: center;
+                border: 1px solid #2f9688;
+                display: block;
+                cursor: pointer;
+            ">
+            重置
+        </a>
     </div>
 </template>
 
@@ -48,7 +61,7 @@ const successHandler = (res) => {
 }
 
 const reset = () => {
-    console.log('reinitialize')
-    captcha.value?.reset(false)
+    console.log('reset')
+    captcha.value?.reset()
 }
 </script>

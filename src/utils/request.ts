@@ -63,7 +63,6 @@ class MiRequest {
                 }
                 const p = qs.stringify(args.data)
                 args.url = args.url + '?' + p
-                console.log('>>>>', args)
                 const configuration = {
                     ...args,
                     ...config

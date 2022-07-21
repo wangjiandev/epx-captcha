@@ -83,7 +83,7 @@ export default defineComponent({
                 end: null
             },
             check: {
-                tries: props.maxTries ?? 5,
+                tries: props.maxTries ?? 1,
                 num: 0,
                 correct: false,
                 show: false,
@@ -278,14 +278,13 @@ export default defineComponent({
             const error = (msg = null) => {
                 setTimeout(() => {
                     dragReset()
-                }, 1000)
+                    closeModal('frequently', '')
+                }, 500)
                 params.check.num++
                 params.check.correct = false
                 if (msg) params.check.tip = msg
             }
-            console.log('coordinateX:', coordinateX)
             const moveLeftDistance = (coordinateX * 310) / parseInt(params.size.width)
-            console.log('moveLeftDistance', moveLeftDistance, coordinateX * 310, params.size.width)
             const succcess = (data: any = {}) => {
                 setTimeout(() => {
                     closeModal('success', data)
@@ -319,7 +318,6 @@ export default defineComponent({
                                 : props.token +
                                   '---' +
                                   JSON.stringify({ x: moveLeftDistance, y: 5.0 })
-                            console.log('>>>>', captchaVerification)
                             succcess(captchaVerification)
                         } else error(res.msg)
                     })

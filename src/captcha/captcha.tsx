@@ -120,11 +120,11 @@ export default defineComponent({
 
         const closeCaptchaModal = (data: any) => {
             if (data) {
-                if (data.status === 'close') reset()
+                if (data.status === 'close') resetCaptcha()
                 if (data.status === 'success') success(data.data)
                 if (data.status === 'frequently') {
-                    reset()
-                    showMessage(`已连续错误达 ${props.maxTries} 次，请稍候再试`, 5)
+                    resetCaptcha()
+                    showMessage(`验证失败`, 5)
                 }
             }
         }
@@ -183,7 +183,6 @@ export default defineComponent({
         const success = (data: any) => {
             params.tip = '通过验证'
             emit('success', data)
-            console.log('1111>>', data)
             setTimeout(() => {
                 params.modal.show = false
                 params.status.being = false
