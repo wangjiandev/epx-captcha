@@ -414,13 +414,6 @@ class MiTools {
         temp = null
         return output
     }
-    serialize(data: any) {
-        const list = []
-        Object.keys(data).forEach((ele) => {
-            list.push(`${ele}=${data[ele]}`)
-        })
-        return list.join('&')
-    }
 }
 
 export const $tools: MiTools = new MiTools()
